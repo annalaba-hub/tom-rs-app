@@ -138,15 +138,15 @@ let showAddResp=false;
 const CAT_MAP={
   'Professor':            {icon:'ti-school',    cargos:['Professor']},
   'Monitor':              {icon:'ti-user-check',cargos:['Monitor']},
-  'Técnico Pedagógico':   {icon:'ti-users',     cargos:['Pedagogo','PAEE','PAC','Sala de Recursos','AEEEI','SAREH']},
+  'Técnico Pedagógico':   {icon:'ti-users',     cargos:['Pedagogo','PAEE','PAC','Sala de Recursos','AEEEI','SAREH','Suporte Técnico','Coordenador de Curso','Coordenador de Área']},
   'Profissional de Apoio':{icon:'ti-tools',     cargos:['Merendeira','Inspetor de Alunos','Auxiliar Administrativo','Auxiliar de Serviços Gerais']},
   'Equipe Multi':         {icon:'ti-heart-handshake',cargos:['Nutricionista','Assistente Social','Psicólogo']},
   'Outro':                {icon:'ti-dots',      cargos:['Coordenador Administrativo','CSC','Jovem Aprendiz']}
 };
 const CATEGORIAS=Object.keys(CAT_MAP);
-const VINCULOS=['CLT','Estágio','RPA'];
+const VINCULOS=['CLT','Estágio','RPA','PJ'];
 // Etapas do funil ativo (Concluída e Cancelada são status de encerramento, não etapas)
-const ETAPAS_FUNIL=['Trabalhando Funil','Triagem','Prova','Aula Teste','Checar Aprovação','Mobilidade Interna','Demanda Futura'];
+const ETAPAS_FUNIL=['Trabalhando Funil','Triagem','Prova','Aula Teste','Checar Aprovação','Entrevista RH','Entrevista Diretor','Mobilidade Interna','Demanda Futura'];
 const ETAPAS_TODAS=[...ETAPAS_FUNIL,'Concluída','Cancelada'];
 const CHS=Array.from({length:40},(_,i)=>`${i+1}h`);
  
@@ -163,8 +163,10 @@ function farol(d,etapa){
 }
 function etapaBadge(e){
   const m={'Trabalhando Funil':'badge-blue','Triagem':'badge-purple','Prova':'badge-amber',
-    'Aula Teste':'badge-amber','Checar Aprovação':'badge-green','Mobilidade Interna':'badge-purple',
-    'Demanda Futura':'badge-gray','Concluída':'badge-green','Cancelada':'badge-gray'};
+    'Aula Teste':'badge-amber','Checar Aprovação':'badge-green',
+    'Entrevista RH':'badge-blue','Entrevista Diretor':'badge-purple',
+    'Mobilidade Interna':'badge-purple','Demanda Futura':'badge-gray',
+    'Concluída':'badge-green','Cancelada':'badge-gray'};
   return m[e]||'badge-gray';
 }
 function cargosForCat(cat){return CAT_MAP[cat]?.cargos||[]}
@@ -437,7 +439,7 @@ function renderVagasTable(){
           <td style="color:var(--text2)">${v.cargo||v.disciplina||'–'}</td>
           <td><span class="badge ${etapaBadge(v.etapa)}">${v.etapa||'–'}</span></td>
           <td style="color:var(--text2);font-size:12px">${v.responsavel_nome||'–'}</td>
-          <td style="color:${v.candidato_aprovado?'var(--green)':'var(--text3)'};font-size:12px">${v.candidato_aprovado||'–'}</td>
+          <td style="color:${v.candidato_aprovado?'var(--green)':'var(--text3)'};font-size:12px" title="${v.horario_monitor?'Horário: '+v.horario_monitor:''}">${v.candidato_aprovado||'–'}</td>
           <td><span class="dias-num" style="color:${dc}">${d}d</span></td>
           <td style="white-space:nowrap">
             <button class="btn btn-ghost btn-sm" data-edit="${v.id}" title="Editar"><i class="ti ti-edit"></i></button>
@@ -549,11 +551,16 @@ function renderModal(){
       </div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">Carga Horária</label>
-        <select class="form-control" id="f-ch">
-          <option value="">Selecionar...</option>
-          ${CHS.map(c=>`<option value="${c}" ${v.carga_horaria===c?'selected':''}>${c}</option>`).join('')}
-        </select>
+      <div class="form-group">
+        ${catSel==='Monitor'
+          ? `<label class="form-label">Horário de Trabalho</label>
+             <input class="form-control" type="text" id="f-horario-monitor" value="${v.horario_monitor||''}" placeholder="Ex: Segunda a sexta, 13h às 17h">`
+          : `<label class="form-label">Carga Horária</label>
+             <select class="form-control" id="f-ch">
+               <option value="">Selecionar...</option>
+               ${CHS.map(c=>`<option value="${c}" ${v.carga_horaria===c?'selected':''}>${c}</option>`).join('')}
+             </select>`
+        }
       </div>
       <div class="form-group"><label class="form-label">Etapa</label>
         <select class="form-control" id="f-etapa-modal">
@@ -729,6 +736,19 @@ function setupModal(){
     const cs=document.getElementById('f-cargo');
     cs.innerHTML=`<option value="">Selecionar...</option>${cargosForCat(cat).map(c=>`<option value="${c}">${c}</option>`).join('')}`;
     cs.disabled=!cat;
+    // Troca campo CH ↔ Horário Monitor dinamicamente
+    const chGroup=cs.closest('.modal-body').querySelector('#f-ch')?.closest('.form-group');
+    const hmGroup=cs.closest('.modal-body').querySelector('#f-horario-monitor')?.closest('.form-group');
+    const chLabel=cs.closest('.modal-body').querySelector('label[for-ch]');
+    // Re-render só o campo de CH/horário
+    const chParent=document.getElementById('f-ch')?.parentElement || document.getElementById('f-horario-monitor')?.parentElement;
+    if(chParent){
+      if(cat==='Monitor'){
+        chParent.innerHTML=`<label class="form-label">Horário de Trabalho</label><input class="form-control" type="text" id="f-horario-monitor" placeholder="Ex: Segunda a sexta, 13h às 17h">`;
+      } else {
+        chParent.innerHTML=`<label class="form-label">Carga Horária</label><select class="form-control" id="f-ch"><option value="">Selecionar...</option>${CHS.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>`;
+      }
+    }
   });
   document.getElementById('btn-add-resp')?.addEventListener('click',()=>{
     const panel=document.getElementById('add-resp-panel');
@@ -767,7 +787,9 @@ async function saveVaga(){
   const cargo=document.getElementById('f-cargo').value;
   const disciplina=document.getElementById('f-disc').value;
   const vinculo=document.getElementById('f-vinculo').value;
-  const ch=document.getElementById('f-ch').value;
+  const isMonitor=categoria==='Monitor';
+  const ch=isMonitor?null:(document.getElementById('f-ch')?.value||null);
+  const horario_monitor=isMonitor?(document.getElementById('f-horario-monitor')?.value.trim()||null):null;
   const etapa=document.getElementById('f-etapa-modal').value;
   const status_acao=document.getElementById('f-status').value.trim();
   const candidato_aprovado=document.getElementById('f-candidato').value.trim();
@@ -780,7 +802,7 @@ async function saveVaga(){
     data_solicitacao:data_sol,categoria,
     regional:reg?.nome||null,municipio:mun?.nome||null,unidade:unidade||null,
     cargo:cargo||null,disciplina:disciplina||null,
-    vinculo:vinculo||null,carga_horaria:ch||null,
+    vinculo:vinculo||null,carga_horaria:ch,horario_monitor,
     etapa,status_acao:status_acao||null,
     candidato_aprovado:candidato_aprovado||null,
     data_suprida,sla_fechamento:sla,
