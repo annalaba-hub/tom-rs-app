@@ -373,13 +373,11 @@ function renderDash(){
  
 // ── VAGAS LIST ──
 function renderVagas(){
-  const fv=filtered();
   const resps=uniqueResps();
   const nAbertas=vagas.filter(v=>v.etapa!=='Concluída'&&v.etapa!=='Cancelada').length;
   const nConc=vagas.filter(v=>v.etapa==='Concluída').length;
   const nCanc=vagas.filter(v=>v.etapa==='Cancelada').length;
   const slas=calcSLAs(vagas);
- 
   return`
   <div class="stats" style="grid-template-columns:repeat(4,1fr)">
     <div class="stat"><div class="stat-label">Em Aberto</div><div class="stat-val" style="color:var(--blue)">${nAbertas}</div><div class="stat-sub">vagas ativas</div></div>
@@ -387,7 +385,6 @@ function renderVagas(){
     <div class="stat"><div class="stat-label">TMF</div><div class="stat-val" style="color:var(--green)">${slas.tmf!=null?slas.tmf+'<span style="font-size:12px;color:var(--text3)">d</span>':'–'}</div><div class="stat-sub">tempo médio fechamento</div></div>
     <div class="stat"><div class="stat-label">Concluídas</div><div class="stat-val" style="color:var(--green)">${nConc}</div><div class="stat-sub">${nCanc} canceladas</div></div>
   </div>
- 
   <div class="filters">
     <input class="filter-input" type="text" id="fi-search" placeholder="Buscar unidade, município, candidato..." value="${fSearch}" style="flex:1;min-width:180px">
     <select class="filter-input" id="fi-status">
@@ -405,12 +402,16 @@ function renderVagas(){
       ${resps.map(r=>`<option value="${r}" ${fResp===r?'selected':''}>${r}</option>`).join('')}
     </select>
   </div>
+  <div id="vagas-table-body">${renderVagasTable()}</div>`
+}
  
-  ${fv.length===0
-    ?`<div class="empty-state"><i class="ti ti-briefcase-off" style="font-size:40px;display:block;margin-bottom:12px;opacity:.3"></i>
-       <div style="font-size:15px;font-weight:500;margin-bottom:6px">Nenhuma vaga encontrada</div>
-       <div style="font-size:13px">Ajuste os filtros ou cadastre uma nova vaga</div></div>`
-    :`<div class="table-wrap"><table>
+function renderVagasTable(){
+  const fv=filtered();
+  if(fv.length===0) return`<div class="empty-state">
+    <i class="ti ti-briefcase-off" style="font-size:40px;display:block;margin-bottom:12px;opacity:.3"></i>
+    <div style="font-size:15px;font-weight:500;margin-bottom:6px">Nenhuma vaga encontrada</div>
+    <div style="font-size:13px">Ajuste os filtros ou cadastre uma nova vaga</div></div>`;
+  return`<div class="table-wrap"><table>
     <colgroup>
       <col style="width:34px"><col style="width:86px"><col style="width:18%">
       <col style="width:108px"><col style="width:14%"><col style="width:120px">
@@ -445,7 +446,7 @@ function renderVagas(){
           </td>
         </tr>`}).join('')}
     </tbody>
-  </table></div>`}`
+  </table></div>`;
 }
  
 // ── MODAL VAGA ──
@@ -656,20 +657,22 @@ function setupApp(){
 }
  
 function updateTable(){
-  const c=document.getElementById('content');
-  if(c&&view==='vagas'){c.innerHTML=renderVagas();setupTableEvents()}
-  if(c&&view==='dashboard'){c.innerHTML=renderDash();setupDashEvents()}
+  if(view==='vagas'){
+    const tb=document.getElementById('vagas-table-body');
+    if(tb){tb.innerHTML=renderVagasTable();setupRowEvents();return;}
+    const c=document.getElementById('content');
+    if(c){c.innerHTML=renderVagas();setupTableEvents();}
+  } else if(view==='dashboard'){
+    const c=document.getElementById('content');
+    if(c){c.innerHTML=renderDash();setupDashEvents();}
+  }
 }
  
 function setupDashEvents(){
   document.querySelectorAll('[data-dash-status]').forEach(el=>el.addEventListener('click',()=>{dashStatus=el.dataset.dashStatus;updateTable()}));
 }
  
-function setupTableEvents(){
-  document.getElementById('fi-search')?.addEventListener('input',e=>{fSearch=e.target.value;updateTable()});
-  document.getElementById('fi-status')?.addEventListener('change',e=>{fStatus=e.target.value;fEtapa='';updateTable()});
-  document.getElementById('fi-etapa')?.addEventListener('change',e=>{fEtapa=e.target.value;updateTable()});
-  document.getElementById('fi-resp')?.addEventListener('change',e=>{fResp=e.target.value;updateTable()});
+function setupRowEvents(){
   document.querySelectorAll('[data-edit]').forEach(el=>el.addEventListener('click',()=>{
     const v=vagas.find(x=>x.id===el.dataset.edit);
     if(v){editVaga={...v};const uni=unidades.find(u=>u.nome===v.unidade);if(uni){const muni=municipios.find(m=>m.id===uni.municipio_id);if(muni){editVaga._muniId=muni.id;editVaga._regId=muni.regional_id;}}}
@@ -679,6 +682,14 @@ function setupTableEvents(){
     confirmCancel=el.dataset.cancel;render();setupConfirmEvents();
   }));
   document.querySelectorAll('[data-del]').forEach(el=>el.addEventListener('click',()=>delVaga(el.dataset.del)));
+}
+ 
+function setupTableEvents(){
+  document.getElementById('fi-search')?.addEventListener('input',e=>{fSearch=e.target.value;updateTable()});
+  document.getElementById('fi-status')?.addEventListener('change',e=>{fStatus=e.target.value;fEtapa='';updateTable()});
+  document.getElementById('fi-etapa')?.addEventListener('change',e=>{fEtapa=e.target.value;updateTable()});
+  document.getElementById('fi-resp')?.addEventListener('change',e=>{fResp=e.target.value;updateTable()});
+  setupRowEvents();
 }
  
 function setupConfirmEvents(){
