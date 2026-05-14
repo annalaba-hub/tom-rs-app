@@ -34,16 +34,19 @@ body{background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
 .nav-item i{font-size:15px;flex-shrink:0}
 .nav-section{font-size:10px;font-weight:600;color:var(--text3);padding:12px 10px 4px;letter-spacing:1px;text-transform:uppercase}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.topbar{height:56px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}
+.topbar{height:56px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:10px;flex-shrink:0}
 .topbar-title{font-size:15px;font-weight:600;flex:1}
 .btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
 .btn-primary{background:var(--accent);color:#fff}
 .btn-primary:hover{background:var(--accent2)}
 .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2)}
 .btn-ghost:hover{background:var(--bg3);color:var(--text)}
+.btn-ghost.active{background:var(--bg3);color:var(--text);border-color:var(--accent)}
 .btn-sm{padding:5px 10px;font-size:12px}
 .btn-danger{background:var(--red-bg);color:var(--red);border:1px solid #3d1515}
 .btn-danger:hover{background:#3d1515}
+.btn-warning{background:var(--amber-bg);color:var(--amber);border:1px solid #4d2e00}
+.btn-warning:hover{background:#4d2e00}
 .content{flex:1;overflow-y:auto;padding:20px}
 .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
 .filter-input{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
@@ -52,8 +55,9 @@ body{background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
 .stat{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
 .stat-label{font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-.stat-val{font-size:24px;font-weight:600;line-height:1}
+.stat-val{font-size:22px;font-weight:600;line-height:1}
 .stat-sub{font-size:11px;color:var(--text3);margin-top:4px}
+.stats-sla{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
 .table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 table{width:100%;border-collapse:collapse;table-layout:fixed}
 th{background:var(--bg3);padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--border)}
@@ -77,7 +81,8 @@ tr:hover td{background:var(--bg3)}
 .modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .modal-title{font-size:16px;font-weight:600}
 .modal-body{padding:20px 24px}
-.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-footer-right{display:flex;gap:8px}
 .form-group{margin-bottom:14px}
 .form-label{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:5px;display:block}
 .form-control{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
@@ -106,6 +111,15 @@ tr:hover td{background:var(--bg3)}
 .tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:11px;background:var(--bg4);color:var(--text2)}
 .mini-modal{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-top:8px}
 .mini-modal-title{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px}
+.tab-bar{display:flex;gap:4px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:20px;width:fit-content}
+.tab{padding:6px 16px;border-radius:7px;cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s;border:none;background:none;font-family:'DM Sans',sans-serif}
+.tab:hover{color:var(--text)}
+.tab.active{background:var(--accent);color:#fff}
+.sla-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px}
+.sla-card-title{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.sla-card-val{font-size:28px;font-weight:600}
+.sla-card-formula{font-size:11px;color:var(--text3);margin-top:6px;font-family:'DM Mono',monospace}
+.confirm-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;width:420px;max-width:95vw}
 </style>
 </head>
 <body>
@@ -115,9 +129,10 @@ const SB_URL='https://yjlrfkuontuuvevjzhor.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlqbHJma3VvbnR1dXZldmp6aG9yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2OTg5NTIsImV4cCI6MjA5NDI3NDk1Mn0.z5cDEGc9STxQm7WGdR2HQWxkuDzzUvf4yVDb3Ny9BkY';
 const sb=supabase.createClient(SB_URL,SB_KEY);
  
-let user=null,profile=null,vagas=[],view='vagas',modal=null,editVaga=null;
-let regionais=[],municipios=[],unidades=[],cargos=[],disciplinas=[],responsaveis=[];
-let fCat='',fEtapa='',fResp='',fSearch='';
+let user=null,profile=null,vagas=[],view='vagas',modal=null,editVaga=null,confirmCancel=null;
+let regionais=[],municipios=[],unidades=[],disciplinas=[],responsaveis=[];
+let fCat='',fEtapa='',fResp='',fSearch='',fStatus='abertas'; // fStatus: abertas|concluidas|canceladas|todas
+let dashStatus='abertas'; // filtro do dashboard
 let showAddResp=false;
  
 const CAT_MAP={
@@ -130,33 +145,57 @@ const CAT_MAP={
 };
 const CATEGORIAS=Object.keys(CAT_MAP);
 const VINCULOS=['CLT','Estágio','RPA'];
-const ETAPAS=['Triagem','Funil','Teste','Aula','Trabalhando','Concluída','Cancelada'];
+// Etapas do funil ativo (Concluída e Cancelada são status de encerramento, não etapas)
+const ETAPAS_FUNIL=['Trabalhando Funil','Triagem','Prova','Aula Teste','Checar Aprovação','Mobilidade Interna','Demanda Futura'];
+const ETAPAS_TODAS=[...ETAPAS_FUNIL,'Concluída','Cancelada'];
 const CHS=Array.from({length:40},(_,i)=>`${i+1}h`);
  
-function dias(sol,sup){const a=new Date(sol),b=sup?new Date(sup):new Date();return Math.floor((b-a)/86400000)}
+function dias(sol,sup){
+  const a=new Date(sol),b=sup?new Date(sup):new Date();
+  return Math.max(0,Math.floor((b-a)/86400000));
+}
 function farol(d,etapa){
-  if(etapa==='Concluída'||etapa==='Cancelada')return{cls:'farol-gray',label:etapa};
+  if(etapa==='Concluída')return{cls:'farol-green',label:'Concluída'};
+  if(etapa==='Cancelada')return{cls:'farol-gray',label:'Cancelada'};
   if(d<=7)return{cls:'farol-green',label:'Nova'};
   if(d<=10)return{cls:'farol-amber',label:'Atenção'};
   return{cls:'farol-red',label:'Alerta'};
 }
-function etapaBadge(e){return{Triagem:'badge-blue',Funil:'badge-purple',Teste:'badge-amber',Aula:'badge-amber',Trabalhando:'badge-green',Concluída:'badge-green',Cancelada:'badge-gray'}[e]||'badge-gray'}
+function etapaBadge(e){
+  const m={'Trabalhando Funil':'badge-blue','Triagem':'badge-purple','Prova':'badge-amber',
+    'Aula Teste':'badge-amber','Checar Aprovação':'badge-green','Mobilidade Interna':'badge-purple',
+    'Demanda Futura':'badge-gray','Concluída':'badge-green','Cancelada':'badge-gray'};
+  return m[e]||'badge-gray';
+}
 function cargosForCat(cat){return CAT_MAP[cat]?.cargos||[]}
  
+// ── SLA CALCULATIONS ──
+function calcSLAs(lista){
+  const fechadas=lista.filter(v=>v.etapa==='Concluída'&&v.sla_fechamento);
+  const abertas=lista.filter(v=>v.etapa!=='Concluída'&&v.etapa!=='Cancelada');
+  const somaFech=fechadas.reduce((a,v)=>a+v.sla_fechamento,0);
+  const somaAbert=abertas.reduce((a,v)=>a+dias(v.data_solicitacao),0);
+  const tmf=fechadas.length?Math.round(somaFech/fechadas.length):null;
+  const aging=abertas.length?Math.round(somaAbert/abertas.length):null;
+  const total=fechadas.length+abertas.length;
+  const slaGeral=total?Math.round((somaFech+somaAbert)/total):null;
+  return{tmf,aging,slaGeral,nFech:fechadas.length,nAbert:abertas.length};
+}
+ 
 async function loadMeta(){
-  const[r,m,u,c,d,resp]=await Promise.all([
+  const[r,m,u,d,resp]=await Promise.all([
     sb.from('regionais').select('*').order('nome'),
     sb.from('municipios').select('*').order('nome'),
     sb.from('unidades').select('*').order('nome'),
-    sb.from('cargos').select('*').order('nome'),
     sb.from('disciplinas').select('*').order('nome'),
     sb.from('responsaveis').select('*').eq('ativo',true).order('nome')
   ]);
   regionais=r.data||[];municipios=m.data||[];unidades=u.data||[];
-  cargos=c.data||[];disciplinas=d.data||[];responsaveis=resp.data||[];
+  disciplinas=d.data||[];responsaveis=resp.data||[];
 }
 async function loadVagas(){
-  const{data,error}=await sb.from('vagas').select('*').order('created_at',{ascending:false});
+  // Ordem: mais antigas primeiro (data_solicitacao ASC)
+  const{data,error}=await sb.from('vagas').select('*').order('data_solicitacao',{ascending:true});
   vagas=error?[]:data;
 }
 async function ensureProfile(u){
@@ -168,31 +207,36 @@ async function ensureProfile(u){
   }
   return data;
 }
+ 
+function applyStatusFilter(lista,status){
+  if(status==='abertas') return lista.filter(v=>v.etapa!=='Concluída'&&v.etapa!=='Cancelada');
+  if(status==='concluidas') return lista.filter(v=>v.etapa==='Concluída');
+  if(status==='canceladas') return lista.filter(v=>v.etapa==='Cancelada');
+  return lista; // todas
+}
+ 
 function filtered(){
-  return vagas.filter(v=>{
+  let lista=applyStatusFilter(vagas,fStatus);
+  return lista.filter(v=>{
     if(fCat&&v.categoria!==fCat)return false;
     if(fEtapa&&v.etapa!==fEtapa)return false;
     if(fResp&&v.responsavel_nome!==fResp)return false;
-    if(fSearch){const q=fSearch.toLowerCase();if(![v.unidade,v.municipio,v.regional,v.disciplina,v.cargo,v.responsavel_nome,v.candidato_aprovado].some(f=>f&&f.toLowerCase().includes(q)))return false;}
+    if(fSearch){const q=fSearch.toLowerCase();
+      if(![v.unidade,v.municipio,v.regional,v.disciplina,v.cargo,v.responsavel_nome,v.candidato_aprovado].some(f=>f&&f.toLowerCase().includes(q)))return false;}
     return true;
   });
 }
-function stats(){
-  const ab=vagas.filter(v=>v.etapa!=='Concluída'&&v.etapa!=='Cancelada');
-  const conc=vagas.filter(v=>v.etapa==='Concluída');
-  const slaArr=conc.filter(v=>v.sla_fechamento);
-  const slaMed=slaArr.length?Math.round(slaArr.reduce((a,v)=>a+v.sla_fechamento,0)/slaArr.length):0;
-  return{total:vagas.length,abertas:ab.length,alerta:ab.filter(v=>dias(v.data_solicitacao,v.data_suprida)>10).length,slaMed};
-}
+ 
+function uniqueResps(){return[...new Set(vagas.map(v=>v.responsavel_nome).filter(Boolean))]}
 function muniByRegional(rid){return municipios.filter(m=>m.regional_id===rid)}
 function unidadesByMuni(mid){return unidades.filter(u=>u.municipio_id===mid)}
-function uniqueResps(){return[...new Set(vagas.map(v=>v.responsavel_nome).filter(Boolean))]}
  
 function render(){
   document.getElementById('root').innerHTML=user?renderApp():renderAuth();
   user?setupApp():setupAuth();
 }
  
+// ── AUTH ──
 function renderAuth(){return`
 <div class="auth-screen"><div class="auth-card">
   <div style="text-align:center;margin-bottom:28px">
@@ -215,6 +259,7 @@ function renderAuth(){return`
   </div>
 </div></div>`}
  
+// ── APP SHELL ──
 function renderApp(){
   return`
 <div id="app-shell">
@@ -231,99 +276,162 @@ function renderApp(){
     <div class="user-info">
       <div class="user-avatar">${profile?.nome?.charAt(0).toUpperCase()||'?'}</div>
       <div><div style="font-size:12px;font-weight:500">${profile?.nome||'Usuário'}</div><div style="font-size:11px;color:var(--text3)">${profile?.role||'recruiter'}</div></div>
-      <button class="logout-btn" id="btn-logout" title="Sair"><i class="ti ti-logout"></i></button>
+      <button class="logout-btn" id="btn-logout"><i class="ti ti-logout"></i></button>
     </div>
   </div>
   <div class="main">
     <div class="topbar">
       <span class="topbar-title">${view==='dashboard'?'Dashboard':'Vagas'}${fCat?` <span class="tag">${fCat}</span>`:''}</span>
-      <button class="btn btn-primary" id="btn-nova"><i class="ti ti-plus"></i> Nova Vaga</button>
+      ${view==='vagas'?`<button class="btn btn-primary" id="btn-nova"><i class="ti ti-plus"></i> Nova Vaga</button>`:''}
     </div>
     <div class="content" id="content">
       ${view==='dashboard'?renderDash():renderVagas()}
     </div>
   </div>
 </div>
-${modal?renderModal():''}`
+${modal?renderModal():''}
+${confirmCancel?renderConfirmCancel():''}`
 }
  
+// ── DASHBOARD ──
 function renderDash(){
-  const s=stats();
-  const ab=vagas.filter(v=>v.etapa!=='Concluída'&&v.etapa!=='Cancelada');
-  const v1=ab.filter(v=>dias(v.data_solicitacao)<=7).length;
-  const v2=ab.filter(v=>{const d=dias(v.data_solicitacao);return d>7&&d<=10}).length;
-  const v3=ab.filter(v=>dias(v.data_solicitacao)>10).length;
-  const cats=CATEGORIAS.map(c=>({c,n:vagas.filter(v=>v.categoria===c).length}));
-  const etps=ETAPAS.map(e=>({e,n:vagas.filter(v=>v.etapa===e).length}));
+  const base=applyStatusFilter(vagas,dashStatus);
+  const slas=calcSLAs(base);
+  const abertas=base.filter(v=>v.etapa!=='Concluída'&&v.etapa!=='Cancelada');
+  const v1=abertas.filter(v=>dias(v.data_solicitacao)<=7).length;
+  const v2=abertas.filter(v=>{const d=dias(v.data_solicitacao);return d>7&&d<=10}).length;
+  const v3=abertas.filter(v=>dias(v.data_solicitacao)>10).length;
+  const cats=CATEGORIAS.map(c=>({c,n:base.filter(v=>v.categoria===c).length}));
+  const etps=ETAPAS_TODAS.map(e=>({e,n:base.filter(v=>v.etapa===e).length}));
+  const total=base.length;
+ 
   return`
-  <div class="stats">
-    <div class="stat"><div class="stat-label">Total de Vagas</div><div class="stat-val">${s.total}</div><div class="stat-sub">todas as categorias</div></div>
-    <div class="stat"><div class="stat-label">Em Aberto</div><div class="stat-val" style="color:var(--blue)">${s.abertas}</div><div class="stat-sub">aguardando fechamento</div></div>
-    <div class="stat"><div class="stat-label">Em Alerta</div><div class="stat-val" style="color:var(--red)">${s.alerta}</div><div class="stat-sub">mais de 10 dias</div></div>
-    <div class="stat"><div class="stat-label">SLA Médio</div><div class="stat-val" style="color:var(--green)">${s.slaMed||'–'}${s.slaMed?'<span style="font-size:12px;color:var(--text3)">d</span>':''}</div><div class="stat-sub">${s.slaMed?'dias até fechamento':'sem dados ainda'}</div></div>
+  <div class="tab-bar">
+    ${[['abertas','Em Aberto'],['concluidas','Concluídas'],['canceladas','Canceladas'],['todas','Todas']].map(([k,l])=>
+      `<button class="tab ${dashStatus===k?'active':''}" data-dash-status="${k}">${l}</button>`).join('')}
   </div>
+ 
+  <div class="stats-sla">
+    <div class="sla-card">
+      <div class="sla-card-title">Tempo Médio de Fechamento</div>
+      <div class="sla-card-val" style="color:var(--green)">${slas.tmf!=null?slas.tmf+'<span style="font-size:14px;color:var(--text3)">d</span>':'–'}</div>
+      <div class="sla-card-formula">TMF = Σ dias fechadas / ${slas.nFech} vagas fechadas</div>
+    </div>
+    <div class="sla-card">
+      <div class="sla-card-title">Aging Médio — Vagas em Aberto</div>
+      <div class="sla-card-val" style="color:var(--amber)">${slas.aging!=null?slas.aging+'<span style="font-size:14px;color:var(--text3)">d</span>':'–'}</div>
+      <div class="sla-card-formula">Aging = Σ dias abertas / ${slas.nAbert} vagas abertas</div>
+    </div>
+    <div class="sla-card">
+      <div class="sla-card-title">SLA Médio Geral</div>
+      <div class="sla-card-val" style="color:var(--blue)">${slas.slaGeral!=null?slas.slaGeral+'<span style="font-size:14px;color:var(--text3)">d</span>':'–'}</div>
+      <div class="sla-card-formula">SLA = (Σ fechadas + Σ abertas) / ${slas.nFech+slas.nAbert} vagas</div>
+    </div>
+  </div>
+ 
+  <div class="stats" style="grid-template-columns:repeat(4,1fr)">
+    <div class="stat"><div class="stat-label">Total no filtro</div><div class="stat-val">${total}</div></div>
+    <div class="stat"><div class="stat-label">Em Aberto</div><div class="stat-val" style="color:var(--blue)">${abertas.length}</div></div>
+    <div class="stat"><div class="stat-label">Em Alerta <span style="font-size:10px">&gt;10d</span></div><div class="stat-val" style="color:var(--red)">${v3}</div></div>
+    <div class="stat"><div class="stat-label">Concluídas</div><div class="stat-val" style="color:var(--green)">${base.filter(v=>v.etapa==='Concluída').length}</div></div>
+  </div>
+ 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
     <div class="table-wrap" style="padding:16px">
-      <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">Farol</div>
-      ${[{cls:'farol-green',color:'var(--green)',label:'Nova — até 7 dias',n:v1},{cls:'farol-amber',color:'var(--amber)',label:'Atenção — 7 a 10 dias',n:v2},{cls:'farol-red',color:'var(--red)',label:'Alerta — mais de 10 dias',n:v3}].map(f=>`
+      <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">Farol — Vagas Abertas</div>
+      ${abertas.length===0?`<div style="color:var(--text3);font-size:13px">Nenhuma vaga em aberto neste filtro.</div>`:`
+      ${[{cls:'farol-green',color:'var(--green)',label:'Nova — até 7 dias',n:v1},
+         {cls:'farol-amber',color:'var(--amber)',label:'Atenção — 7 a 10 dias',n:v2},
+         {cls:'farol-red',color:'var(--red)',label:'Alerta — mais de 10 dias',n:v3}].map(f=>`
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <span class="farol ${f.cls}"></span><span style="font-size:13px;flex:1;color:var(--text2)">${f.label}</span>
+        <span class="farol ${f.cls}"></span>
+        <span style="font-size:13px;flex:1;color:var(--text2)">${f.label}</span>
         <span style="font-size:20px;font-weight:600;color:${f.color}">${f.n}</span>
-      </div>`).join('')}
+      </div>`).join('')}`}
     </div>
     <div class="table-wrap" style="padding:16px">
       <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">Por Categoria</div>
       ${cats.map(c=>`<div style="margin-bottom:10px">
         <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>${c.c}</span><span style="font-weight:600">${c.n}</span></div>
-        <div class="progress-bar"><div class="progress-fill" style="width:${s.total?Math.round(c.n/s.total*100):0}%"></div></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${total?Math.round(c.n/total*100):0}%"></div></div>
       </div>`).join('')}
     </div>
   </div>
+ 
   <div class="table-wrap" style="padding:16px">
     <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">Por Etapa</div>
     <div style="display:flex;flex-wrap:wrap;gap:8px">
-      ${etps.map(e=>`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 16px;text-align:center;min-width:90px"><div style="font-size:20px;font-weight:600">${e.n}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${e.e}</div></div>`).join('')}
+      ${etps.filter(e=>e.n>0).map(e=>`
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 16px;text-align:center;min-width:100px">
+        <div style="font-size:20px;font-weight:600">${e.n}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">${e.e}</div>
+      </div>`).join('')}
+      ${etps.every(e=>e.n===0)?`<div style="color:var(--text3);font-size:13px">Sem dados para este filtro.</div>`:''}
     </div>
   </div>`
 }
  
+// ── VAGAS LIST ──
 function renderVagas(){
-  const s=stats();
   const fv=filtered();
   const resps=uniqueResps();
+  const nAbertas=vagas.filter(v=>v.etapa!=='Concluída'&&v.etapa!=='Cancelada').length;
+  const nConc=vagas.filter(v=>v.etapa==='Concluída').length;
+  const nCanc=vagas.filter(v=>v.etapa==='Cancelada').length;
+  const slas=calcSLAs(vagas);
+ 
   return`
-  <div class="stats">
-    <div class="stat"><div class="stat-label">Filtradas</div><div class="stat-val">${fv.length}</div></div>
-    <div class="stat"><div class="stat-label">Alerta</div><div class="stat-val" style="color:var(--red)">${fv.filter(v=>{const d=dias(v.data_solicitacao,v.data_suprida);return d>10&&v.etapa!=='Concluída'&&v.etapa!=='Cancelada'}).length}</div></div>
-    <div class="stat"><div class="stat-label">Concluídas</div><div class="stat-val" style="color:var(--green)">${fv.filter(v=>v.etapa==='Concluída').length}</div></div>
-    <div class="stat"><div class="stat-label">SLA Médio</div><div class="stat-val">${s.slaMed||'–'}${s.slaMed?'<span style="font-size:12px;color:var(--text3)">d</span>':''}</div></div>
+  <div class="stats" style="grid-template-columns:repeat(4,1fr)">
+    <div class="stat"><div class="stat-label">Em Aberto</div><div class="stat-val" style="color:var(--blue)">${nAbertas}</div><div class="stat-sub">vagas ativas</div></div>
+    <div class="stat"><div class="stat-label">Aging Médio</div><div class="stat-val" style="color:var(--amber)">${slas.aging!=null?slas.aging+'<span style="font-size:12px;color:var(--text3)">d</span>':'–'}</div><div class="stat-sub">vagas abertas</div></div>
+    <div class="stat"><div class="stat-label">TMF</div><div class="stat-val" style="color:var(--green)">${slas.tmf!=null?slas.tmf+'<span style="font-size:12px;color:var(--text3)">d</span>':'–'}</div><div class="stat-sub">tempo médio fechamento</div></div>
+    <div class="stat"><div class="stat-label">Concluídas</div><div class="stat-val" style="color:var(--green)">${nConc}</div><div class="stat-sub">${nCanc} canceladas</div></div>
   </div>
+ 
   <div class="filters">
-    <input class="filter-input" type="text" id="fi-search" placeholder="Buscar unidade, município, disciplina, candidato..." value="${fSearch}" style="flex:1;min-width:200px">
+    <input class="filter-input" type="text" id="fi-search" placeholder="Buscar unidade, município, candidato..." value="${fSearch}" style="flex:1;min-width:180px">
+    <select class="filter-input" id="fi-status">
+      <option value="abertas" ${fStatus==='abertas'?'selected':''}>Em Aberto</option>
+      <option value="concluidas" ${fStatus==='concluidas'?'selected':''}>Concluídas</option>
+      <option value="canceladas" ${fStatus==='canceladas'?'selected':''}>Canceladas</option>
+      <option value="todas" ${fStatus==='todas'?'selected':''}>Todas</option>
+    </select>
     <select class="filter-input" id="fi-etapa">
       <option value="">Todas as etapas</option>
-      ${ETAPAS.map(e=>`<option value="${e}" ${fEtapa===e?'selected':''}>${e}</option>`).join('')}
+      ${ETAPAS_TODAS.map(e=>`<option value="${e}" ${fEtapa===e?'selected':''}>${e}</option>`).join('')}
     </select>
     <select class="filter-input" id="fi-resp">
       <option value="">Todos os responsáveis</option>
       ${resps.map(r=>`<option value="${r}" ${fResp===r?'selected':''}>${r}</option>`).join('')}
     </select>
   </div>
-  ${fv.length===0?`<div class="empty-state"><i class="ti ti-briefcase-off" style="font-size:40px;display:block;margin-bottom:12px;opacity:.3"></i><div style="font-size:15px;font-weight:500;margin-bottom:6px">Nenhuma vaga encontrada</div><div style="font-size:13px">Ajuste os filtros ou cadastre uma nova vaga</div></div>`:`
-  <div class="table-wrap"><table>
-    <colgroup><col style="width:34px"><col style="width:86px"><col style="width:19%"><col style="width:118px"><col style="width:15%"><col style="width:98px"><col style="width:12%"><col style="width:13%"><col style="width:50px"><col style="width:74px"></colgroup>
+ 
+  ${fv.length===0
+    ?`<div class="empty-state"><i class="ti ti-briefcase-off" style="font-size:40px;display:block;margin-bottom:12px;opacity:.3"></i>
+       <div style="font-size:15px;font-weight:500;margin-bottom:6px">Nenhuma vaga encontrada</div>
+       <div style="font-size:13px">Ajuste os filtros ou cadastre uma nova vaga</div></div>`
+    :`<div class="table-wrap"><table>
+    <colgroup>
+      <col style="width:34px"><col style="width:86px"><col style="width:18%">
+      <col style="width:108px"><col style="width:14%"><col style="width:120px">
+      <col style="width:11%"><col style="width:11%"><col style="width:48px"><col style="width:96px">
+    </colgroup>
     <thead><tr>
-      <th></th><th>Data</th><th>Unidade</th><th>Categoria</th><th>Cargo / Disciplina</th><th>Etapa</th><th>Responsável</th><th>Candidato Aprovado</th><th>Dias</th><th>Ações</th>
+      <th></th><th>Data</th><th>Unidade</th><th>Categoria</th>
+      <th>Cargo / Disciplina</th><th>Etapa</th>
+      <th>Responsável</th><th>Candidato Aprovado</th><th>Dias</th><th>Ações</th>
     </tr></thead>
     <tbody>
       ${fv.map(v=>{
         const d=dias(v.data_solicitacao,v.data_suprida);
         const f=farol(d,v.etapa);
-        const dc=d>10?'var(--red)':d>7?'var(--amber)':'var(--green)';
+        const dc=v.etapa==='Concluída'?'var(--green)':v.etapa==='Cancelada'?'var(--text3)':d>10?'var(--red)':d>7?'var(--amber)':'var(--green)';
+        const isClosed=v.etapa==='Concluída'||v.etapa==='Cancelada';
         return`<tr>
           <td style="text-align:center"><span class="farol ${f.cls}" title="${f.label}"></span></td>
           <td style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">${v.data_solicitacao}</td>
-          <td><div style="font-weight:500;overflow:hidden;text-overflow:ellipsis">${v.unidade||'–'}</div><div style="font-size:11px;color:var(--text3)">${v.municipio||''}${v.regional?' · '+v.regional:''}</div></td>
+          <td><div style="font-weight:500;overflow:hidden;text-overflow:ellipsis">${v.unidade||'–'}</div>
+              <div style="font-size:11px;color:var(--text3)">${v.municipio||''}${v.regional?' · '+v.regional:''}</div></td>
           <td><span class="badge badge-blue" style="font-size:11px">${v.categoria||'–'}</span></td>
           <td style="color:var(--text2)">${v.cargo||v.disciplina||'–'}</td>
           <td><span class="badge ${etapaBadge(v.etapa)}">${v.etapa||'–'}</span></td>
@@ -331,14 +439,16 @@ function renderVagas(){
           <td style="color:${v.candidato_aprovado?'var(--green)':'var(--text3)'};font-size:12px">${v.candidato_aprovado||'–'}</td>
           <td><span class="dias-num" style="color:${dc}">${d}d</span></td>
           <td style="white-space:nowrap">
-            <button class="btn btn-ghost btn-sm" data-edit="${v.id}"><i class="ti ti-edit"></i></button>
-            <button class="btn btn-danger btn-sm" data-del="${v.id}" style="margin-left:4px"><i class="ti ti-trash"></i></button>
+            <button class="btn btn-ghost btn-sm" data-edit="${v.id}" title="Editar"><i class="ti ti-edit"></i></button>
+            ${!isClosed?`<button class="btn btn-warning btn-sm" data-cancel="${v.id}" title="Cancelar vaga" style="margin-left:3px"><i class="ti ti-ban"></i></button>`:''}
+            <button class="btn btn-danger btn-sm" data-del="${v.id}" title="Excluir" style="margin-left:3px"><i class="ti ti-trash"></i></button>
           </td>
         </tr>`}).join('')}
     </tbody>
   </table></div>`}`
 }
  
+// ── MODAL VAGA ──
 function renderModal(){
   const v=editVaga||{};
   const isEdit=modal==='edit';
@@ -348,6 +458,7 @@ function renderModal(){
   const unis=selMuniId?unidadesByMuni(parseInt(selMuniId)):[];
   const catSel=v.categoria||'';
   const cargosDisp=catSel?cargosForCat(catSel):[];
+  const etapaAtual=v.etapa||'Trabalhando Funil';
   return`
 <div class="modal-overlay" id="modal-bg"><div class="modal">
   <div class="modal-header">
@@ -367,7 +478,7 @@ function renderModal(){
             <option value="">Selecionar...</option>
             ${responsaveis.map(r=>`<option value="${r.nome}" ${v.responsavel_nome===r.nome?'selected':''}>${r.nome}</option>`).join('')}
           </select>
-          <button class="btn btn-ghost btn-sm" id="btn-add-resp" title="Adicionar novo responsável" style="padding:8px 10px;flex-shrink:0"><i class="ti ti-plus"></i></button>
+          <button class="btn btn-ghost btn-sm" id="btn-add-resp" style="padding:8px 10px;flex-shrink:0"><i class="ti ti-plus"></i></button>
         </div>
         <div id="add-resp-panel" style="display:none">
           <div class="mini-modal">
@@ -384,6 +495,7 @@ function renderModal(){
         </div>
       </div>
     </div>
+ 
     <div class="section-divider">Localização</div>
     <div class="form-row-3">
       <div class="form-group"><label class="form-label">Regional</label>
@@ -405,6 +517,7 @@ function renderModal(){
         </select>
       </div>
     </div>
+ 
     <div class="section-divider">Função</div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Categoria</label>
@@ -442,11 +555,14 @@ function renderModal(){
         </select>
       </div>
       <div class="form-group"><label class="form-label">Etapa</label>
-        <select class="form-control" id="f-etapa">
-          ${ETAPAS.map(e=>`<option value="${e}" ${(v.etapa||'Triagem')===e?'selected':''}>${e}</option>`).join('')}
+        <select class="form-control" id="f-etapa-modal">
+          ${ETAPAS_FUNIL.map(e=>`<option value="${e}" ${etapaAtual===e?'selected':''}>${e}</option>`).join('')}
+          ${v.etapa==='Concluída'?`<option value="Concluída" selected>Concluída</option>`:''}
+          ${v.etapa==='Cancelada'?`<option value="Cancelada" selected>Cancelada</option>`:''}
         </select>
       </div>
     </div>
+ 
     <div class="section-divider">Acompanhamento</div>
     <div class="form-group"><label class="form-label">Candidatos / Status / Ação</label>
       <textarea class="form-control" id="f-status" rows="3" placeholder="Descreva candidatos em acompanhamento, ações tomadas...">${v.status_acao||''}</textarea>
@@ -461,12 +577,38 @@ function renderModal(){
     </div>
   </div>
   <div class="modal-footer">
-    <button class="btn btn-ghost" id="btn-mcancel">Cancelar</button>
-    <button class="btn btn-primary" id="btn-msave"><i class="ti ti-check"></i> Salvar</button>
+    <div>
+      ${isEdit&&editVaga?.etapa!=='Concluída'&&editVaga?.etapa!=='Cancelada'
+        ?`<button class="btn btn-ghost btn-sm" id="btn-concluir" style="color:var(--green);border-color:var(--green-bg)"><i class="ti ti-circle-check"></i> Marcar como Concluída</button>`
+        :''}
+    </div>
+    <div class="modal-footer-right">
+      <button class="btn btn-ghost" id="btn-mcancel">Cancelar</button>
+      <button class="btn btn-primary" id="btn-msave"><i class="ti ti-check"></i> Salvar</button>
+    </div>
   </div>
 </div></div>`
 }
  
+// ── CONFIRM CANCEL MODAL ──
+function renderConfirmCancel(){return`
+<div class="modal-overlay" id="confirm-bg"><div class="confirm-modal modal">
+  <div class="modal-header">
+    <span class="modal-title" style="color:var(--amber)"><i class="ti ti-ban"></i> Cancelar Vaga</span>
+  </div>
+  <div class="modal-body">
+    <p style="font-size:14px;color:var(--text2);line-height:1.6">
+      Confirma o cancelamento desta vaga?<br>
+      <span style="font-size:13px;color:var(--text3)">A vaga será marcada como <strong style="color:var(--amber)">Cancelada</strong> e removida da visualização padrão. Pode ser consultada filtrando por "Canceladas".</span>
+    </p>
+  </div>
+  <div class="modal-footer" style="justify-content:flex-end">
+    <button class="btn btn-ghost" id="btn-cancel-no">Voltar</button>
+    <button class="btn btn-warning" id="btn-cancel-yes"><i class="ti ti-ban"></i> Confirmar Cancelamento</button>
+  </div>
+</div></div>`}
+ 
+// ── SETUP EVENTS ──
 function setupAuth(){
   document.getElementById('btn-login')?.addEventListener('click',doLogin);
   document.getElementById('btn-signup')?.addEventListener('click',doSignup);
@@ -474,6 +616,7 @@ function setupAuth(){
   document.getElementById('link-signup')?.addEventListener('click',e=>{e.preventDefault();document.getElementById('form-login').style.display='none';document.getElementById('form-signup').style.display='block'});
   document.getElementById('link-login')?.addEventListener('click',e=>{e.preventDefault();document.getElementById('form-signup').style.display='none';document.getElementById('form-login').style.display='block'});
 }
+ 
 async function doLogin(){
   const email=document.getElementById('l-email').value.trim();
   const pass=document.getElementById('l-pass').value;
@@ -484,6 +627,7 @@ async function doLogin(){
   user=data.user;profile=await ensureProfile(user);
   await Promise.all([loadMeta(),loadVagas()]);render();
 }
+ 
 async function doSignup(){
   const nome=document.getElementById('s-nome').value.trim();
   const email=document.getElementById('s-email').value.trim();
@@ -500,19 +644,30 @@ async function doSignup(){
 function setupApp(){
   document.querySelectorAll('[data-view]').forEach(el=>el.addEventListener('click',()=>{view=el.dataset.view;render()}));
   document.querySelectorAll('[data-cat]').forEach(el=>el.addEventListener('click',()=>{fCat=el.dataset.cat;view='vagas';render()}));
+  document.querySelectorAll('[data-dash-status]').forEach(el=>el.addEventListener('click',()=>{dashStatus=el.dataset.dashStatus;render()}));
   document.getElementById('btn-logout')?.addEventListener('click',async()=>{await sb.auth.signOut();user=null;profile=null;vagas=[];render()});
   document.getElementById('btn-nova')?.addEventListener('click',()=>{modal='new';editVaga=null;showAddResp=false;render();setupModal()});
   document.getElementById('fi-search')?.addEventListener('input',e=>{fSearch=e.target.value;updateTable()});
+  document.getElementById('fi-status')?.addEventListener('change',e=>{fStatus=e.target.value;fEtapa='';updateTable()});
   document.getElementById('fi-etapa')?.addEventListener('change',e=>{fEtapa=e.target.value;updateTable()});
   document.getElementById('fi-resp')?.addEventListener('change',e=>{fResp=e.target.value;updateTable()});
   setupTableEvents();
+  if(confirmCancel) setupConfirmEvents();
 }
+ 
 function updateTable(){
   const c=document.getElementById('content');
   if(c&&view==='vagas'){c.innerHTML=renderVagas();setupTableEvents()}
+  if(c&&view==='dashboard'){c.innerHTML=renderDash();setupDashEvents()}
 }
+ 
+function setupDashEvents(){
+  document.querySelectorAll('[data-dash-status]').forEach(el=>el.addEventListener('click',()=>{dashStatus=el.dataset.dashStatus;updateTable()}));
+}
+ 
 function setupTableEvents(){
   document.getElementById('fi-search')?.addEventListener('input',e=>{fSearch=e.target.value;updateTable()});
+  document.getElementById('fi-status')?.addEventListener('change',e=>{fStatus=e.target.value;fEtapa='';updateTable()});
   document.getElementById('fi-etapa')?.addEventListener('change',e=>{fEtapa=e.target.value;updateTable()});
   document.getElementById('fi-resp')?.addEventListener('change',e=>{fResp=e.target.value;updateTable()});
   document.querySelectorAll('[data-edit]').forEach(el=>el.addEventListener('click',()=>{
@@ -520,13 +675,32 @@ function setupTableEvents(){
     if(v){editVaga={...v};const uni=unidades.find(u=>u.nome===v.unidade);if(uni){const muni=municipios.find(m=>m.id===uni.municipio_id);if(muni){editVaga._muniId=muni.id;editVaga._regId=muni.regional_id;}}}
     modal='edit';showAddResp=false;render();setupModal();
   }));
+  document.querySelectorAll('[data-cancel]').forEach(el=>el.addEventListener('click',()=>{
+    confirmCancel=el.dataset.cancel;render();setupConfirmEvents();
+  }));
   document.querySelectorAll('[data-del]').forEach(el=>el.addEventListener('click',()=>delVaga(el.dataset.del)));
 }
+ 
+function setupConfirmEvents(){
+  document.getElementById('btn-cancel-no')?.addEventListener('click',()=>{confirmCancel=null;render()});
+  document.getElementById('confirm-bg')?.addEventListener('click',e=>{if(e.target.id==='confirm-bg'){confirmCancel=null;render()}});
+  document.getElementById('btn-cancel-yes')?.addEventListener('click',async()=>{
+    await sb.from('vagas').update({etapa:'Cancelada',updated_at:new Date().toISOString()}).eq('id',confirmCancel);
+    confirmCancel=null;await loadVagas();render();
+  });
+}
+ 
 function setupModal(){
   document.getElementById('btn-mclose')?.addEventListener('click',closeModal);
   document.getElementById('btn-mcancel')?.addEventListener('click',closeModal);
   document.getElementById('modal-bg')?.addEventListener('click',e=>{if(e.target.id==='modal-bg')closeModal()});
   document.getElementById('btn-msave')?.addEventListener('click',saveVaga);
+  document.getElementById('btn-concluir')?.addEventListener('click',async()=>{
+    const data_hoje=new Date().toISOString().split('T')[0];
+    const sla=dias(editVaga.data_solicitacao,data_hoje);
+    await sb.from('vagas').update({etapa:'Concluída',data_suprida:data_hoje,sla_fechamento:sla,updated_at:new Date().toISOString()}).eq('id',editVaga.id);
+    await loadVagas();closeModal();
+  });
   document.getElementById('f-regional')?.addEventListener('change',e=>{
     const rid=parseInt(e.target.value);
     const ms=document.getElementById('f-muni'),us=document.getElementById('f-unidade');
@@ -549,11 +723,10 @@ function setupModal(){
     const panel=document.getElementById('add-resp-panel');
     panel.style.display=panel.style.display==='none'?'block':'none';
   });
-  document.getElementById('btn-cancel-resp')?.addEventListener('click',()=>{
-    document.getElementById('add-resp-panel').style.display='none';
-  });
+  document.getElementById('btn-cancel-resp')?.addEventListener('click',()=>{document.getElementById('add-resp-panel').style.display='none'});
   document.getElementById('btn-save-resp')?.addEventListener('click',saveNovoResp);
 }
+ 
 async function saveNovoResp(){
   const nome=document.getElementById('new-resp-nome').value.trim();
   const email=document.getElementById('new-resp-email').value.trim();
@@ -569,7 +742,9 @@ async function saveNovoResp(){
   document.getElementById('new-resp-email').value='';
   document.getElementById('add-resp-panel').style.display='none';
 }
+ 
 function closeModal(){modal=null;editVaga=null;showAddResp=false;render()}
+ 
 async function saveVaga(){
   const msg=document.getElementById('modal-msg');
   const data_sol=document.getElementById('f-data').value;
@@ -582,7 +757,7 @@ async function saveVaga(){
   const disciplina=document.getElementById('f-disc').value;
   const vinculo=document.getElementById('f-vinculo').value;
   const ch=document.getElementById('f-ch').value;
-  const etapa=document.getElementById('f-etapa').value;
+  const etapa=document.getElementById('f-etapa-modal').value;
   const status_acao=document.getElementById('f-status').value.trim();
   const candidato_aprovado=document.getElementById('f-candidato').value.trim();
   const data_suprida=document.getElementById('f-suprida').value||null;
@@ -609,11 +784,13 @@ async function saveVaga(){
   if(error){msg.innerHTML=`<div class="error-msg">${error.message}</div>`;return}
   await loadVagas();closeModal();
 }
+ 
 async function delVaga(id){
-  if(!confirm('Confirmar exclusão desta vaga?'))return;
+  if(!confirm('Excluir permanentemente esta vaga? Esta ação não pode ser desfeita.'))return;
   await sb.from('vagas').delete().eq('id',id);
   await loadVagas();render();
 }
+ 
 async function init(){
   document.getElementById('root').innerHTML=`<div class="loading-screen"><span class="spinner"></span> Carregando...</div>`;
   const{data:{session}}=await sb.auth.getSession();
