@@ -23,7 +23,7 @@ font-family:'DM Sans',sans-serif;
 }
 body{background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
 #app-shell{display:flex;height:100vh;overflow:hidden}
-.sidebar{width:220px;min-width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column}
+.sidebar{width:228px;min-width:228px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column}
 .logo{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
 .logo-title{font-size:18px;font-weight:600;color:var(--text);letter-spacing:-0.3px}
 .logo-sub{font-size:11px;color:var(--text3);margin-top:2px;font-family:'DM Mono',monospace}
@@ -31,7 +31,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
 .nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;color:var(--text2);font-size:13px;margin-bottom:2px;transition:all .15s}
 .nav-item:hover{background:var(--bg3);color:var(--text)}
 .nav-item.active{background:var(--accent);color:#fff}
-.nav-item i{font-size:16px}
+.nav-item i{font-size:15px;flex-shrink:0}
 .nav-section{font-size:10px;font-weight:600;color:var(--text3);padding:12px 10px 4px;letter-spacing:1px;text-transform:uppercase}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .topbar{height:56px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}
@@ -73,7 +73,7 @@ tr:hover td{background:var(--bg3)}
 .farol-red{background:var(--red);box-shadow:0 0 6px var(--red)}
 .farol-gray{background:var(--text3)}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:flex-start;justify-content:center;z-index:100;padding:20px;overflow-y:auto}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;width:600px;max-width:100%}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;width:620px;max-width:100%}
 .modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .modal-title{font-size:16px;font-weight:600}
 .modal-body{padding:20px 24px}
@@ -85,6 +85,8 @@ tr:hover td{background:var(--bg3)}
 .form-control:disabled{opacity:.4;cursor:not-allowed}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.input-with-btn{display:flex;gap:6px}
+.input-with-btn .form-control{flex:1}
 .auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh}
 .auth-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:40px;width:380px}
 .error-msg{background:var(--red-bg);color:var(--red);padding:10px 12px;border-radius:8px;font-size:13px;margin-bottom:14px;border:1px solid #3d1515}
@@ -102,6 +104,8 @@ tr:hover td{background:var(--bg3)}
 .progress-fill{height:100%;border-radius:4px;background:var(--accent)}
 .section-divider{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin:18px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
 .tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:11px;background:var(--bg4);color:var(--text2)}
+.mini-modal{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-top:8px}
+.mini-modal-title{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px}
 </style>
 </head>
 <body>
@@ -110,35 +114,46 @@ tr:hover td{background:var(--bg3)}
 const SB_URL='https://yjlrfkuontuuvevjzhor.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlqbHJma3VvbnR1dXZldmp6aG9yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2OTg5NTIsImV4cCI6MjA5NDI3NDk1Mn0.z5cDEGc9STxQm7WGdR2HQWxkuDzzUvf4yVDb3Ny9BkY';
 const sb=supabase.createClient(SB_URL,SB_KEY);
-
+ 
 let user=null,profile=null,vagas=[],view='vagas',modal=null,editVaga=null;
-let regionais=[],municipios=[],unidades=[],cargos=[],disciplinas=[];
+let regionais=[],municipios=[],unidades=[],cargos=[],disciplinas=[],responsaveis=[];
 let fCat='',fEtapa='',fResp='',fSearch='';
-
-const CATEGORIAS=['Professor','Técnico Pedagógico','Monitor'];
+let showAddResp=false;
+ 
+const CAT_MAP={
+  'Professor':            {icon:'ti-school',    cargos:['Professor']},
+  'Monitor':              {icon:'ti-user-check',cargos:['Monitor']},
+  'Técnico Pedagógico':   {icon:'ti-users',     cargos:['Pedagogo','PAEE','PAC','Sala de Recursos','AEEEI','SAREH']},
+  'Profissional de Apoio':{icon:'ti-tools',     cargos:['Merendeira','Inspetor de Alunos','Auxiliar Administrativo','Auxiliar de Serviços Gerais']},
+  'Equipe Multi':         {icon:'ti-heart-handshake',cargos:['Nutricionista','Assistente Social','Psicólogo']},
+  'Outro':                {icon:'ti-dots',      cargos:['Coordenador Administrativo','CSC','Jovem Aprendiz']}
+};
+const CATEGORIAS=Object.keys(CAT_MAP);
 const VINCULOS=['CLT','Estágio','RPA'];
 const ETAPAS=['Triagem','Funil','Teste','Aula','Trabalhando','Concluída','Cancelada'];
-const CHS=['10h','15h','20h','25h','30h','40h','Outro'];
-
+const CHS=Array.from({length:40},(_,i)=>`${i+1}h`);
+ 
 function dias(sol,sup){const a=new Date(sol),b=sup?new Date(sup):new Date();return Math.floor((b-a)/86400000)}
 function farol(d,etapa){
-  if(etapa==='Concluída'||etapa==='Cancelada')return{cls:'farol-gray',badge:'badge-gray',label:etapa};
-  if(d<=7)return{cls:'farol-green',badge:'badge-green',label:'Nova'};
-  if(d<=10)return{cls:'farol-amber',badge:'badge-amber',label:'Atenção'};
-  return{cls:'farol-red',badge:'badge-red',label:'Alerta'};
+  if(etapa==='Concluída'||etapa==='Cancelada')return{cls:'farol-gray',label:etapa};
+  if(d<=7)return{cls:'farol-green',label:'Nova'};
+  if(d<=10)return{cls:'farol-amber',label:'Atenção'};
+  return{cls:'farol-red',label:'Alerta'};
 }
 function etapaBadge(e){return{Triagem:'badge-blue',Funil:'badge-purple',Teste:'badge-amber',Aula:'badge-amber',Trabalhando:'badge-green',Concluída:'badge-green',Cancelada:'badge-gray'}[e]||'badge-gray'}
-
+function cargosForCat(cat){return CAT_MAP[cat]?.cargos||[]}
+ 
 async function loadMeta(){
-  const[r,m,u,c,d]=await Promise.all([
+  const[r,m,u,c,d,resp]=await Promise.all([
     sb.from('regionais').select('*').order('nome'),
     sb.from('municipios').select('*').order('nome'),
     sb.from('unidades').select('*').order('nome'),
     sb.from('cargos').select('*').order('nome'),
-    sb.from('disciplinas').select('*').order('nome')
+    sb.from('disciplinas').select('*').order('nome'),
+    sb.from('responsaveis').select('*').eq('ativo',true).order('nome')
   ]);
   regionais=r.data||[];municipios=m.data||[];unidades=u.data||[];
-  cargos=c.data||[];disciplinas=d.data||[];
+  cargos=c.data||[];disciplinas=d.data||[];responsaveis=resp.data||[];
 }
 async function loadVagas(){
   const{data,error}=await sb.from('vagas').select('*').order('created_at',{ascending:false});
@@ -153,13 +168,12 @@ async function ensureProfile(u){
   }
   return data;
 }
-
 function filtered(){
   return vagas.filter(v=>{
     if(fCat&&v.categoria!==fCat)return false;
     if(fEtapa&&v.etapa!==fEtapa)return false;
     if(fResp&&v.responsavel_nome!==fResp)return false;
-    if(fSearch){const q=fSearch.toLowerCase();if(![v.unidade,v.municipio,v.regional,v.disciplina,v.cargo,v.responsavel_nome].some(f=>f&&f.toLowerCase().includes(q)))return false;}
+    if(fSearch){const q=fSearch.toLowerCase();if(![v.unidade,v.municipio,v.regional,v.disciplina,v.cargo,v.responsavel_nome,v.candidato_aprovado].some(f=>f&&f.toLowerCase().includes(q)))return false;}
     return true;
   });
 }
@@ -170,18 +184,17 @@ function stats(){
   const slaMed=slaArr.length?Math.round(slaArr.reduce((a,v)=>a+v.sla_fechamento,0)/slaArr.length):0;
   return{total:vagas.length,abertas:ab.length,alerta:ab.filter(v=>dias(v.data_solicitacao,v.data_suprida)>10).length,slaMed};
 }
-function responsaveis(){return[...new Set(vagas.map(v=>v.responsavel_nome).filter(Boolean))]}
 function muniByRegional(rid){return municipios.filter(m=>m.regional_id===rid)}
 function unidadesByMuni(mid){return unidades.filter(u=>u.municipio_id===mid)}
-
+function uniqueResps(){return[...new Set(vagas.map(v=>v.responsavel_nome).filter(Boolean))]}
+ 
 function render(){
   document.getElementById('root').innerHTML=user?renderApp():renderAuth();
   user?setupApp():setupAuth();
 }
-
+ 
 function renderAuth(){return`
-<div class="auth-screen">
-<div class="auth-card">
+<div class="auth-screen"><div class="auth-card">
   <div style="text-align:center;margin-bottom:28px">
     <div style="font-size:28px;font-weight:700;color:var(--accent);letter-spacing:-1px">TOM</div>
     <div style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:2px">R&S · GESTÃO DE VAGAS</div>
@@ -201,10 +214,8 @@ function renderAuth(){return`
     <p style="text-align:center;margin-top:14px;font-size:13px;color:var(--text3)">Já tem conta? <a href="#" id="link-login" style="color:var(--accent)">Entrar</a></p>
   </div>
 </div></div>`}
-
+ 
 function renderApp(){
-  const s=stats();
-  const fv=filtered();
   return`
 <div id="app-shell">
   <div class="sidebar">
@@ -213,8 +224,8 @@ function renderApp(){
       <div class="nav-section">Principal</div>
       <div class="nav-item ${view==='vagas'?'active':''}" data-view="vagas"><i class="ti ti-briefcase"></i> Vagas</div>
       <div class="nav-item ${view==='dashboard'?'active':''}" data-view="dashboard"><i class="ti ti-chart-bar"></i> Dashboard</div>
-      <div class="nav-section">Filtrar por categoria</div>
-      ${CATEGORIAS.map(c=>`<div class="nav-item ${fCat===c?'active':''}" data-cat="${c}"><i class="ti ti-${c==='Professor'?'school':c==='Monitor'?'user-check':'users'}"></i> ${c}</div>`).join('')}
+      <div class="nav-section">Categoria</div>
+      ${CATEGORIAS.map(c=>`<div class="nav-item ${fCat===c?'active':''}" data-cat="${c}"><i class="ti ${CAT_MAP[c].icon}"></i> ${c}</div>`).join('')}
       ${fCat?`<div class="nav-item" data-cat=""><i class="ti ti-x"></i> Limpar filtro</div>`:''}
     </nav>
     <div class="user-info">
@@ -229,14 +240,15 @@ function renderApp(){
       <button class="btn btn-primary" id="btn-nova"><i class="ti ti-plus"></i> Nova Vaga</button>
     </div>
     <div class="content" id="content">
-      ${view==='dashboard'?renderDash(s):renderVagas(fv,s)}
+      ${view==='dashboard'?renderDash():renderVagas()}
     </div>
   </div>
 </div>
 ${modal?renderModal():''}`
 }
-
-function renderDash(s){
+ 
+function renderDash(){
+  const s=stats();
   const ab=vagas.filter(v=>v.etapa!=='Concluída'&&v.etapa!=='Cancelada');
   const v1=ab.filter(v=>dias(v.data_solicitacao)<=7).length;
   const v2=ab.filter(v=>{const d=dias(v.data_solicitacao);return d>7&&d<=10}).length;
@@ -255,15 +267,13 @@ function renderDash(s){
       <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">Farol</div>
       ${[{cls:'farol-green',color:'var(--green)',label:'Nova — até 7 dias',n:v1},{cls:'farol-amber',color:'var(--amber)',label:'Atenção — 7 a 10 dias',n:v2},{cls:'farol-red',color:'var(--red)',label:'Alerta — mais de 10 dias',n:v3}].map(f=>`
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <span class="farol ${f.cls}"></span>
-        <span style="font-size:13px;flex:1;color:var(--text2)">${f.label}</span>
+        <span class="farol ${f.cls}"></span><span style="font-size:13px;flex:1;color:var(--text2)">${f.label}</span>
         <span style="font-size:20px;font-weight:600;color:${f.color}">${f.n}</span>
       </div>`).join('')}
     </div>
     <div class="table-wrap" style="padding:16px">
       <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">Por Categoria</div>
-      ${cats.map(c=>`
-      <div style="margin-bottom:12px">
+      ${cats.map(c=>`<div style="margin-bottom:10px">
         <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>${c.c}</span><span style="font-weight:600">${c.n}</span></div>
         <div class="progress-bar"><div class="progress-fill" style="width:${s.total?Math.round(c.n/s.total*100):0}%"></div></div>
       </div>`).join('')}
@@ -276,9 +286,11 @@ function renderDash(s){
     </div>
   </div>`
 }
-
-function renderVagas(fv,s){
-  const resps=responsaveis();
+ 
+function renderVagas(){
+  const s=stats();
+  const fv=filtered();
+  const resps=uniqueResps();
   return`
   <div class="stats">
     <div class="stat"><div class="stat-label">Filtradas</div><div class="stat-val">${fv.length}</div></div>
@@ -287,7 +299,7 @@ function renderVagas(fv,s){
     <div class="stat"><div class="stat-label">SLA Médio</div><div class="stat-val">${s.slaMed||'–'}${s.slaMed?'<span style="font-size:12px;color:var(--text3)">d</span>':''}</div></div>
   </div>
   <div class="filters">
-    <input class="filter-input" type="text" id="fi-search" placeholder="Buscar unidade, município, disciplina..." value="${fSearch}" style="flex:1;min-width:200px">
+    <input class="filter-input" type="text" id="fi-search" placeholder="Buscar unidade, município, disciplina, candidato..." value="${fSearch}" style="flex:1;min-width:200px">
     <select class="filter-input" id="fi-etapa">
       <option value="">Todas as etapas</option>
       ${ETAPAS.map(e=>`<option value="${e}" ${fEtapa===e?'selected':''}>${e}</option>`).join('')}
@@ -298,36 +310,35 @@ function renderVagas(fv,s){
     </select>
   </div>
   ${fv.length===0?`<div class="empty-state"><i class="ti ti-briefcase-off" style="font-size:40px;display:block;margin-bottom:12px;opacity:.3"></i><div style="font-size:15px;font-weight:500;margin-bottom:6px">Nenhuma vaga encontrada</div><div style="font-size:13px">Ajuste os filtros ou cadastre uma nova vaga</div></div>`:`
-  <div class="table-wrap">
-    <table>
-      <colgroup><col style="width:36px"><col style="width:90px"><col style="width:22%"><col style="width:110px"><col style="width:18%"><col style="width:110px"><col style="width:14%"><col style="width:56px"><col style="width:80px"></colgroup>
-      <thead><tr>
-        <th></th><th>Data</th><th>Unidade</th><th>Categoria</th><th>Disciplina / Cargo</th><th>Etapa</th><th>Responsável</th><th>Dias</th><th>Ações</th>
-      </tr></thead>
-      <tbody>
-        ${fv.map(v=>{
-          const d=dias(v.data_solicitacao,v.data_suprida);
-          const f=farol(d,v.etapa);
-          const dc=d>10?'var(--red)':d>7?'var(--amber)':'var(--green)';
-          return`<tr>
-            <td style="text-align:center"><span class="farol ${f.cls}" title="${f.label}"></span></td>
-            <td style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">${v.data_solicitacao}</td>
-            <td><div style="font-weight:500;overflow:hidden;text-overflow:ellipsis">${v.unidade||'–'}</div><div style="font-size:11px;color:var(--text3)">${v.municipio||''}${v.regional?' · '+v.regional:''}</div></td>
-            <td><span class="badge badge-blue" style="font-size:11px">${v.categoria||'–'}</span></td>
-            <td style="color:var(--text2)">${v.disciplina||v.cargo||'–'}</td>
-            <td><span class="badge ${etapaBadge(v.etapa)}">${v.etapa||'–'}</span></td>
-            <td style="color:var(--text2);font-size:12px">${v.responsavel_nome||'–'}</td>
-            <td><span class="dias-num" style="color:${dc}">${d}d</span></td>
-            <td style="white-space:nowrap">
-              <button class="btn btn-ghost btn-sm" data-edit="${v.id}" title="Editar"><i class="ti ti-edit"></i></button>
-              <button class="btn btn-danger btn-sm" data-del="${v.id}" title="Excluir" style="margin-left:4px"><i class="ti ti-trash"></i></button>
-            </td>
-          </tr>`}).join('')}
-      </tbody>
-    </table>
-  </div>`}`
+  <div class="table-wrap"><table>
+    <colgroup><col style="width:34px"><col style="width:86px"><col style="width:19%"><col style="width:118px"><col style="width:15%"><col style="width:98px"><col style="width:12%"><col style="width:13%"><col style="width:50px"><col style="width:74px"></colgroup>
+    <thead><tr>
+      <th></th><th>Data</th><th>Unidade</th><th>Categoria</th><th>Cargo / Disciplina</th><th>Etapa</th><th>Responsável</th><th>Candidato Aprovado</th><th>Dias</th><th>Ações</th>
+    </tr></thead>
+    <tbody>
+      ${fv.map(v=>{
+        const d=dias(v.data_solicitacao,v.data_suprida);
+        const f=farol(d,v.etapa);
+        const dc=d>10?'var(--red)':d>7?'var(--amber)':'var(--green)';
+        return`<tr>
+          <td style="text-align:center"><span class="farol ${f.cls}" title="${f.label}"></span></td>
+          <td style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">${v.data_solicitacao}</td>
+          <td><div style="font-weight:500;overflow:hidden;text-overflow:ellipsis">${v.unidade||'–'}</div><div style="font-size:11px;color:var(--text3)">${v.municipio||''}${v.regional?' · '+v.regional:''}</div></td>
+          <td><span class="badge badge-blue" style="font-size:11px">${v.categoria||'–'}</span></td>
+          <td style="color:var(--text2)">${v.cargo||v.disciplina||'–'}</td>
+          <td><span class="badge ${etapaBadge(v.etapa)}">${v.etapa||'–'}</span></td>
+          <td style="color:var(--text2);font-size:12px">${v.responsavel_nome||'–'}</td>
+          <td style="color:${v.candidato_aprovado?'var(--green)':'var(--text3)'};font-size:12px">${v.candidato_aprovado||'–'}</td>
+          <td><span class="dias-num" style="color:${dc}">${d}d</span></td>
+          <td style="white-space:nowrap">
+            <button class="btn btn-ghost btn-sm" data-edit="${v.id}"><i class="ti ti-edit"></i></button>
+            <button class="btn btn-danger btn-sm" data-del="${v.id}" style="margin-left:4px"><i class="ti ti-trash"></i></button>
+          </td>
+        </tr>`}).join('')}
+    </tbody>
+  </table></div>`}`
 }
-
+ 
 function renderModal(){
   const v=editVaga||{};
   const isEdit=modal==='edit';
@@ -335,23 +346,42 @@ function renderModal(){
   const selMuniId=v._muniId||'';
   const munis=selRegId?muniByRegional(parseInt(selRegId)):[];
   const unis=selMuniId?unidadesByMuni(parseInt(selMuniId)):[];
+  const catSel=v.categoria||'';
+  const cargosDisp=catSel?cargosForCat(catSel):[];
   return`
-<div class="modal-overlay" id="modal-bg">
-<div class="modal">
+<div class="modal-overlay" id="modal-bg"><div class="modal">
   <div class="modal-header">
     <span class="modal-title">${isEdit?'Editar Vaga':'Nova Vaga'}</span>
     <button class="btn btn-ghost btn-sm" id="btn-mclose"><i class="ti ti-x"></i></button>
   </div>
   <div class="modal-body">
     <div id="modal-msg"></div>
-    <div class="section-divider">Identificação da Vaga</div>
+    <div class="section-divider">Identificação</div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">Data de Solicitação</label><input class="form-control" type="date" id="f-data" value="${v.data_solicitacao||new Date().toISOString().split('T')[0]}"></div>
-      <div class="form-group"><label class="form-label">Categoria</label>
-        <select class="form-control" id="f-cat">
-          <option value="">Selecionar...</option>
-          ${CATEGORIAS.map(c=>`<option value="${c}" ${v.categoria===c?'selected':''}>${c}</option>`).join('')}
-        </select>
+      <div class="form-group"><label class="form-label">Data de Solicitação</label>
+        <input class="form-control" type="date" id="f-data" value="${v.data_solicitacao||new Date().toISOString().split('T')[0]}">
+      </div>
+      <div class="form-group"><label class="form-label">Responsável</label>
+        <div class="input-with-btn">
+          <select class="form-control" id="f-resp">
+            <option value="">Selecionar...</option>
+            ${responsaveis.map(r=>`<option value="${r.nome}" ${v.responsavel_nome===r.nome?'selected':''}>${r.nome}</option>`).join('')}
+          </select>
+          <button class="btn btn-ghost btn-sm" id="btn-add-resp" title="Adicionar novo responsável" style="padding:8px 10px;flex-shrink:0"><i class="ti ti-plus"></i></button>
+        </div>
+        <div id="add-resp-panel" style="display:none">
+          <div class="mini-modal">
+            <div class="mini-modal-title">Novo Responsável</div>
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom:0"><input class="form-control" type="text" id="new-resp-nome" placeholder="Nome completo"></div>
+              <div class="form-group" style="margin-bottom:0"><input class="form-control" type="email" id="new-resp-email" placeholder="E-mail (opcional)"></div>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <button class="btn btn-primary btn-sm" id="btn-save-resp"><i class="ti ti-check"></i> Salvar</button>
+              <button class="btn btn-ghost btn-sm" id="btn-cancel-resp">Cancelar</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="section-divider">Localização</div>
@@ -377,43 +407,58 @@ function renderModal(){
     </div>
     <div class="section-divider">Função</div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">Cargo</label>
-        <select class="form-control" id="f-cargo">
+      <div class="form-group"><label class="form-label">Categoria</label>
+        <select class="form-control" id="f-cat">
           <option value="">Selecionar...</option>
-          ${cargos.map(c=>`<option value="${c.nome}" ${v.cargo===c.nome?'selected':''}>${c.nome}</option>`).join('')}
+          ${CATEGORIAS.map(c=>`<option value="${c}" ${catSel===c?'selected':''}>${c}</option>`).join('')}
         </select>
       </div>
+      <div class="form-group"><label class="form-label">Cargo</label>
+        <select class="form-control" id="f-cargo" ${!catSel?'disabled':''}>
+          <option value="">Selecionar...</option>
+          ${cargosDisp.map(c=>`<option value="${c}" ${v.cargo===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
       <div class="form-group"><label class="form-label">Disciplina</label>
         <select class="form-control" id="f-disc">
           <option value="">Selecionar...</option>
           ${disciplinas.map(d=>`<option value="${d.nome}" ${v.disciplina===d.nome?'selected':''}>${d.nome}</option>`).join('')}
         </select>
       </div>
-    </div>
-    <div class="form-row">
       <div class="form-group"><label class="form-label">Vínculo</label>
         <select class="form-control" id="f-vinculo">
           <option value="">Selecionar...</option>
           ${VINCULOS.map(vc=>`<option value="${vc}" ${v.vinculo===vc?'selected':''}>${vc}</option>`).join('')}
         </select>
       </div>
+    </div>
+    <div class="form-row">
       <div class="form-group"><label class="form-label">Carga Horária</label>
         <select class="form-control" id="f-ch">
           <option value="">Selecionar...</option>
           ${CHS.map(c=>`<option value="${c}" ${v.carga_horaria===c?'selected':''}>${c}</option>`).join('')}
         </select>
       </div>
-    </div>
-    <div class="section-divider">Acompanhamento</div>
-    <div class="form-row">
       <div class="form-group"><label class="form-label">Etapa</label>
         <select class="form-control" id="f-etapa">
           ${ETAPAS.map(e=>`<option value="${e}" ${(v.etapa||'Triagem')===e?'selected':''}>${e}</option>`).join('')}
         </select>
       </div>
-      <div class="form-group"><label class="form-label">Data de Suprimento</label><input class="form-control" type="date" id="f-suprida" value="${v.data_suprida||''}"></div>
     </div>
-    <div class="form-group"><label class="form-label">Candidatos / Status / Ação</label><textarea class="form-control" id="f-status" rows="3" placeholder="Descreva candidatos em acompanhamento, ações tomadas...">${v.status_acao||''}</textarea></div>
+    <div class="section-divider">Acompanhamento</div>
+    <div class="form-group"><label class="form-label">Candidatos / Status / Ação</label>
+      <textarea class="form-control" id="f-status" rows="3" placeholder="Descreva candidatos em acompanhamento, ações tomadas...">${v.status_acao||''}</textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Candidato Aprovado</label>
+        <input class="form-control" type="text" id="f-candidato" value="${v.candidato_aprovado||''}" placeholder="Nome do candidato aprovado">
+      </div>
+      <div class="form-group"><label class="form-label">Data de Suprimento</label>
+        <input class="form-control" type="date" id="f-suprida" value="${v.data_suprida||''}">
+      </div>
+    </div>
   </div>
   <div class="modal-footer">
     <button class="btn btn-ghost" id="btn-mcancel">Cancelar</button>
@@ -421,7 +466,7 @@ function renderModal(){
   </div>
 </div></div>`
 }
-
+ 
 function setupAuth(){
   document.getElementById('btn-login')?.addEventListener('click',doLogin);
   document.getElementById('btn-signup')?.addEventListener('click',doSignup);
@@ -429,7 +474,6 @@ function setupAuth(){
   document.getElementById('link-signup')?.addEventListener('click',e=>{e.preventDefault();document.getElementById('form-login').style.display='none';document.getElementById('form-signup').style.display='block'});
   document.getElementById('link-login')?.addEventListener('click',e=>{e.preventDefault();document.getElementById('form-signup').style.display='none';document.getElementById('form-login').style.display='block'});
 }
-
 async function doLogin(){
   const email=document.getElementById('l-email').value.trim();
   const pass=document.getElementById('l-pass').value;
@@ -440,7 +484,6 @@ async function doLogin(){
   user=data.user;profile=await ensureProfile(user);
   await Promise.all([loadMeta(),loadVagas()]);render();
 }
-
 async function doSignup(){
   const nome=document.getElementById('s-nome').value.trim();
   const email=document.getElementById('s-email').value.trim();
@@ -450,46 +493,35 @@ async function doSignup(){
   msg.innerHTML=`<div style="padding:10px;color:var(--text3)"><span class="spinner"></span>Criando conta...</div>`;
   const{data,error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:nome}}});
   if(error){msg.innerHTML=`<div class="error-msg">${error.message}</div>`;return}
-  if(data.user&&data.session){
-    user=data.user;profile=await ensureProfile(user);
-    await Promise.all([loadMeta(),loadVagas()]);render();
-  } else {
-    msg.innerHTML=`<div class="success-msg">Conta criada! Verifique seu e-mail para confirmar.</div>`;
-  }
+  if(data.user&&data.session){user=data.user;profile=await ensureProfile(user);await Promise.all([loadMeta(),loadVagas()]);render();}
+  else{msg.innerHTML=`<div class="success-msg">Conta criada! Verifique seu e-mail para confirmar.</div>`}
 }
-
+ 
 function setupApp(){
   document.querySelectorAll('[data-view]').forEach(el=>el.addEventListener('click',()=>{view=el.dataset.view;render()}));
   document.querySelectorAll('[data-cat]').forEach(el=>el.addEventListener('click',()=>{fCat=el.dataset.cat;view='vagas';render()}));
   document.getElementById('btn-logout')?.addEventListener('click',async()=>{await sb.auth.signOut();user=null;profile=null;vagas=[];render()});
-  document.getElementById('btn-nova')?.addEventListener('click',()=>{modal='new';editVaga=null;render();setupModal()});
+  document.getElementById('btn-nova')?.addEventListener('click',()=>{modal='new';editVaga=null;showAddResp=false;render();setupModal()});
   document.getElementById('fi-search')?.addEventListener('input',e=>{fSearch=e.target.value;updateTable()});
   document.getElementById('fi-etapa')?.addEventListener('change',e=>{fEtapa=e.target.value;updateTable()});
   document.getElementById('fi-resp')?.addEventListener('change',e=>{fResp=e.target.value;updateTable()});
   setupTableEvents();
 }
-
 function updateTable(){
-  const content=document.getElementById('content');
-  if(content&&view==='vagas'){content.innerHTML=renderVagas(filtered(),stats());setupTableEvents()}
+  const c=document.getElementById('content');
+  if(c&&view==='vagas'){c.innerHTML=renderVagas();setupTableEvents()}
 }
-
 function setupTableEvents(){
   document.getElementById('fi-search')?.addEventListener('input',e=>{fSearch=e.target.value;updateTable()});
   document.getElementById('fi-etapa')?.addEventListener('change',e=>{fEtapa=e.target.value;updateTable()});
   document.getElementById('fi-resp')?.addEventListener('change',e=>{fResp=e.target.value;updateTable()});
   document.querySelectorAll('[data-edit]').forEach(el=>el.addEventListener('click',()=>{
     const v=vagas.find(x=>x.id===el.dataset.edit);
-    if(v){
-      editVaga={...v};
-      const uni=unidades.find(u=>u.nome===v.unidade);
-      if(uni){const muni=municipios.find(m=>m.id===uni.municipio_id);if(muni){editVaga._muniId=muni.id;editVaga._regId=muni.regional_id;}}
-    }
-    modal='edit';render();setupModal();
+    if(v){editVaga={...v};const uni=unidades.find(u=>u.nome===v.unidade);if(uni){const muni=municipios.find(m=>m.id===uni.municipio_id);if(muni){editVaga._muniId=muni.id;editVaga._regId=muni.regional_id;}}}
+    modal='edit';showAddResp=false;render();setupModal();
   }));
   document.querySelectorAll('[data-del]').forEach(el=>el.addEventListener('click',()=>delVaga(el.dataset.del)));
 }
-
 function setupModal(){
   document.getElementById('btn-mclose')?.addEventListener('click',closeModal);
   document.getElementById('btn-mcancel')?.addEventListener('click',closeModal);
@@ -497,27 +529,52 @@ function setupModal(){
   document.getElementById('btn-msave')?.addEventListener('click',saveVaga);
   document.getElementById('f-regional')?.addEventListener('change',e=>{
     const rid=parseInt(e.target.value);
-    const muniSel=document.getElementById('f-muni');
-    const uniSel=document.getElementById('f-unidade');
-    muniSel.innerHTML=`<option value="">Selecionar...</option>${muniByRegional(rid).map(m=>`<option value="${m.id}">${m.nome}</option>`).join('')}`;
-    muniSel.disabled=!rid;
-    uniSel.innerHTML=`<option value="">Selecionar...</option>`;
-    uniSel.disabled=true;
+    const ms=document.getElementById('f-muni'),us=document.getElementById('f-unidade');
+    ms.innerHTML=`<option value="">Selecionar...</option>${muniByRegional(rid).map(m=>`<option value="${m.id}">${m.nome}</option>`).join('')}`;
+    ms.disabled=!rid;us.innerHTML=`<option value="">Selecionar...</option>`;us.disabled=true;
   });
   document.getElementById('f-muni')?.addEventListener('change',e=>{
     const mid=parseInt(e.target.value);
-    const uniSel=document.getElementById('f-unidade');
-    uniSel.innerHTML=`<option value="">Selecionar...</option>${unidadesByMuni(mid).map(u=>`<option value="${u.nome}">${u.nome}</option>`).join('')}`;
-    uniSel.disabled=!mid;
+    const us=document.getElementById('f-unidade');
+    us.innerHTML=`<option value="">Selecionar...</option>${unidadesByMuni(mid).map(u=>`<option value="${u.nome}">${u.nome}</option>`).join('')}`;
+    us.disabled=!mid;
   });
+  document.getElementById('f-cat')?.addEventListener('change',e=>{
+    const cat=e.target.value;
+    const cs=document.getElementById('f-cargo');
+    cs.innerHTML=`<option value="">Selecionar...</option>${cargosForCat(cat).map(c=>`<option value="${c}">${c}</option>`).join('')}`;
+    cs.disabled=!cat;
+  });
+  document.getElementById('btn-add-resp')?.addEventListener('click',()=>{
+    const panel=document.getElementById('add-resp-panel');
+    panel.style.display=panel.style.display==='none'?'block':'none';
+  });
+  document.getElementById('btn-cancel-resp')?.addEventListener('click',()=>{
+    document.getElementById('add-resp-panel').style.display='none';
+  });
+  document.getElementById('btn-save-resp')?.addEventListener('click',saveNovoResp);
 }
-
-function closeModal(){modal=null;editVaga=null;render()}
-
+async function saveNovoResp(){
+  const nome=document.getElementById('new-resp-nome').value.trim();
+  const email=document.getElementById('new-resp-email').value.trim();
+  if(!nome)return;
+  const{data,error}=await sb.from('responsaveis').insert({nome,email:email||null}).select().single();
+  if(error){alert('Erro: '+error.message);return}
+  responsaveis.push(data);
+  const sel=document.getElementById('f-resp');
+  const opt=document.createElement('option');
+  opt.value=data.nome;opt.text=data.nome;opt.selected=true;
+  sel.appendChild(opt);
+  document.getElementById('new-resp-nome').value='';
+  document.getElementById('new-resp-email').value='';
+  document.getElementById('add-resp-panel').style.display='none';
+}
+function closeModal(){modal=null;editVaga=null;showAddResp=false;render()}
 async function saveVaga(){
   const msg=document.getElementById('modal-msg');
   const data_sol=document.getElementById('f-data').value;
   const categoria=document.getElementById('f-cat').value;
+  const resp_nome=document.getElementById('f-resp').value;
   const regId=document.getElementById('f-regional').value;
   const muniId=document.getElementById('f-muni').value;
   const unidade=document.getElementById('f-unidade').value;
@@ -527,6 +584,7 @@ async function saveVaga(){
   const ch=document.getElementById('f-ch').value;
   const etapa=document.getElementById('f-etapa').value;
   const status_acao=document.getElementById('f-status').value.trim();
+  const candidato_aprovado=document.getElementById('f-candidato').value.trim();
   const data_suprida=document.getElementById('f-suprida').value||null;
   if(!data_sol||!categoria){msg.innerHTML=`<div class="error-msg">Preencha ao menos a data e a categoria.</div>`;return}
   const reg=regionais.find(r=>r.id===parseInt(regId));
@@ -538,8 +596,10 @@ async function saveVaga(){
     cargo:cargo||null,disciplina:disciplina||null,
     vinculo:vinculo||null,carga_horaria:ch||null,
     etapa,status_acao:status_acao||null,
+    candidato_aprovado:candidato_aprovado||null,
     data_suprida,sla_fechamento:sla,
-    responsavel_id:user.id,responsavel_nome:profile?.nome,
+    responsavel_id:user.id,
+    responsavel_nome:resp_nome||profile?.nome,
     updated_at:new Date().toISOString()
   };
   msg.innerHTML=`<div style="padding:10px;color:var(--text3)"><span class="spinner"></span>Salvando...</div>`;
@@ -549,20 +609,15 @@ async function saveVaga(){
   if(error){msg.innerHTML=`<div class="error-msg">${error.message}</div>`;return}
   await loadVagas();closeModal();
 }
-
 async function delVaga(id){
   if(!confirm('Confirmar exclusão desta vaga?'))return;
   await sb.from('vagas').delete().eq('id',id);
   await loadVagas();render();
 }
-
 async function init(){
   document.getElementById('root').innerHTML=`<div class="loading-screen"><span class="spinner"></span> Carregando...</div>`;
   const{data:{session}}=await sb.auth.getSession();
-  if(session?.user){
-    user=session.user;profile=await ensureProfile(user);
-    await Promise.all([loadMeta(),loadVagas()]);
-  }
+  if(session?.user){user=session.user;profile=await ensureProfile(user);await Promise.all([loadMeta(),loadVagas()]);}
   render();
 }
 init();
